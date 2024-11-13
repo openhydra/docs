@@ -11,6 +11,7 @@
 * registry.cn-shanghai.aliyuncs.com/openhydra/aes-ai-tutor:release-2.0 -- 用于虚拟助教提供知识库服务的组件
 * registry.cn-shanghai.aliyuncs.com/openhydra/aes-dashboard:release-2.0 -- 负责前端页面的镜像
 * registry.cn-shanghai.aliyuncs.com/openhydra/core-api-server:release-2.0 -- 负责核心 api 服务的镜像
+* registry.cn-shanghai.aliyuncs.com/openhydra/open-hydra-server:latest -- 负责启动容器服务的组件
 
 镜像对应的 k8s 部署控制器的名字
 
@@ -89,4 +90,27 @@ $ ctr -n k8s.io i pull registry.cn-shanghai.aliyuncs.com/openhydra/core-api-serv
 
 # 启动服务
 $ kubectl scale --replicas=1 deployment/core-api-server -n ai-education-studio
+```
+
+### 更新 open-hydra-server 镜像
+
+```bash
+# 切换到 root,输入密码
+$ sudo -s
+
+# 停止当前服务
+$ kubectl scale --replicas=0 deployment/open-hydra-server -n open-hydra
+
+# 通过重命名复制旧镜像
+# 以便于回滚
+$ ctr -n k8s.io i tag registry.cn-shanghai.aliyuncs.com/openhydra/open-hydra-server:latest registry.cn-shanghai.aliyuncs.com/openhydra/open-hydra-server:latest-old
+
+# 删除旧镜像
+$ ctr -n k8s.io i rm registry.cn-shanghai.aliyuncs.com/openhydra/open-hydra-server:latest
+
+# 下载新镜像
+$ ctr -n k8s.io i pull registry.cn-shanghai.aliyuncs.com/openhydra/open-hydra-server:latest
+
+# 启动服务
+$ kubectl scale --replicas=1 deployment/open-hydra-server -n open-hydra
 ```
